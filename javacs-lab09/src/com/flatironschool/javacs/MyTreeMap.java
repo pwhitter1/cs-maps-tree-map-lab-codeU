@@ -71,9 +71,20 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		@SuppressWarnings("unchecked")
 		Comparable<? super K> k = (Comparable<? super K>) target;
 		
-		// the actual search
-        // TODO: Fill this in.
-        return null;
+		MyTreeMap<K, V>.Node curNode  = root;
+		
+		while(curNode != null) {
+			// the actual search
+			if(k.compareTo(curNode.key) == 0) { return curNode; }
+			else if ((k.compareTo(curNode.key) < 0)) { 
+				curNode = curNode.left; 
+			}
+			else { 
+				curNode = curNode.right;
+			}
+		}
+		
+		return null;
 	}
 
 	/**
@@ -92,6 +103,12 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsValue(Object target) {
+		Collection<V> values = this.values();
+		
+		for(V value: values) {
+			if(target.equals(value)) { return true; }
+		}
+	
 		return false;
 	}
 
@@ -117,7 +134,18 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	@Override
 	public Set<K> keySet() {
 		Set<K> set = new LinkedHashSet<K>();
-        // TODO: Fill this in.
+		return inorder(root, set);
+	}
+	
+	/*Helper function for keySet :
+		add keys to the set using in-order tree traversal
+	*/
+	private Set<K> inorder(Node node, Set<K> set) {
+		if(node != null) {
+			inorder(node.left, set);
+			set.add(node.key);
+			inorder(node.right, set);	
+		}
 		return set;
 	}
 
@@ -134,9 +162,44 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		return putHelper(root, key, value);
 	}
 
+	//Do NOT forget to update the size instance variable in these methods
 	private V putHelper(Node node, K key, V value) {
-        // TODO: Fill this in.
-        return null;
+		
+		@SuppressWarnings("unchecked")
+		Comparable<? super K> k = (Comparable<? super K>) key;
+		
+		while(node != null) {
+			if ((k.compareTo(node.key) < 0)) { 
+				//the node does not exist in the tree - add it in its proper place
+				if(node.left == null) {
+					node.left = makeNode(key, value);
+					size++;
+					return null;
+				}
+				
+				//keep searching
+				node = node.left; 
+			}
+			else if((k.compareTo(node.key) > 0)) { 
+				//the node does not exist in the tree - add it in its proper place
+				if(node.right == null) {
+					node.right = makeNode(key, value);
+					size++;
+					return null;
+				}
+				
+				//keep searching
+				node = node.right;
+			}
+			else { break; }
+			
+		}
+		
+		//otherwise, the node exists in the tree - update its value
+		V oldVal = node.value;
+		node.value = value;
+		return oldVal;
+
 	}
 
 	@Override
